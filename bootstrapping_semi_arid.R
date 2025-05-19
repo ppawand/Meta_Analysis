@@ -15,24 +15,47 @@ library(ggpubr)
 # weighted mean and confidence interval for each category
 
 source("~/Desktop/Meta-analysis/bootstrap mean and CI.R")
+source("~/Desktop/Meta-analysis/var_importance.R")
 
 ##################
 # data
 ##################
 mbiomass <- read_excel("~/Desktop/MetaData.xlsx", sheet = 1)
 
-mbiomass <- mbiomass %>% select(studyID, map, mat, env.type, ph, pH.level, ecosystem,
-                                Warming.technique, magnitude, magnitude.of.warming, 
+mbiomass <- mbiomass %>% select(studyID, map, mat, env.type, ph, pH.level, irrigation.status,
+                                ecosystem, Warming.technique, magnitude, magnitude.of.warming, 
                                 duration, warming.duration, deg.duration,
                                 LRR, var, weight, weight.adjusted, weighted.lnR, 
                                 variable)
 
-mbiomass[c("studyID", "env.type", "pH.level", "ecosystem", "Warming.technique", "magnitude.of.warming",
-           "warming.duration")] <-
-  lapply(mbiomass[c("studyID", "env.type", "pH.level", "ecosystem", "Warming.technique", "magnitude.of.warming",
-                    "warming.duration")], factor)
+mbiomass[c("studyID", "env.type", "pH.level", "ecosystem", "Warming.technique",
+           "irrigation.status", "magnitude.of.warming", "warming.duration")] <-
+  lapply(mbiomass[c("studyID", "env.type", "pH.level", "ecosystem", "Warming.technique",
+                    "irrigation.status","magnitude.of.warming","warming.duration")], factor)
 sapply(mbiomass, class)
 
+# Rename and reorder the factor levels
+mbiomass$env.type <- factor(mbiomass$env.type,
+                            levels = c("semi-arid", "dry-mesic"),
+                            labels = c("Semi-arid", "Dry-mesic"))
+
+mbiomass$pH.level <- factor(mbiomass$pH.level,
+                            levels = c("Acidic", "Neutral", "Alkaline"),
+                            labels = c("Acidic", "Neutral", "Alkaline"))
+
+mbiomass$magnitude.of.warming <- factor(mbiomass$magnitude.of.warming,
+                                    levels = c("< 2", "> 2"),
+                                    labels = c("Low", "High"))
+
+mbiomass$warming.duration <- factor(mbiomass$warming.duration,
+                                    levels = c("<= 2", "2-5", ">=5"),
+                                    labels = c("Short", "Medium", "Long"))
+
+mbiomass$irrigation.status <- factor(mbiomass$irrigation.status,
+                                     levels = c("yes", "no"),
+                                     labels = c("Irrigated", "Non-irrigated"))
+
+var_importance(mbiomass)
 
 # overall effects of warming
 
@@ -75,6 +98,7 @@ overall_effect <- overall_effect %>% mutate(mean_per = ((exp(mean) - 1) * 100),
 ################
 
 mbc <- mbiomass %>% filter(variable == "MBC")
+
 
 
 mbc_ecosystem <- bootstrap_mean_ci(data = mbc,
@@ -202,7 +226,6 @@ mbc_duration <- mbc_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
 bacteria <- mbiomass %>% filter(variable == "Bacteria")
 
 
-
 bacteria_ecosystem <- bootstrap_mean_ci(data = bacteria,
                                    cat_var = "ecosystem",
                                    num_var = "LRR")
@@ -326,6 +349,7 @@ bacteria_duration <- bacteria_duration %>% mutate(mean_per = ((exp(mean) - 1) * 
 ###########################
 fungi <- mbiomass %>% filter(variable == "Fungi")
 
+
 fungi_ecosystem <- bootstrap_mean_ci(data = fungi,
                                    cat_var = "ecosystem",
                                    num_var = "LRR")
@@ -448,7 +472,6 @@ fungi_duration <- fungi_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
 ###########################
 Gpos.bacteria <- mbiomass %>% filter(variable == "Gram Positive Bacteria")
 
-
 gpos_ecosystem <- bootstrap_mean_ci(data = Gpos.bacteria,
                                    cat_var = "ecosystem",
                                    num_var = "LRR")
@@ -502,9 +525,10 @@ gpos_ph <- gpos_ph %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                             lci_per = ((exp(lower_ci) - 1) * 100),
                             uci_per = ((exp(upper_ci) - 1) * 100))
 
-Gpos_ph_plot <- 
+(Gpos_ph_plot <- 
   ggplot(gpos_ph, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -514,7 +538,7 @@ Gpos_ph_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 gpos_magnitude <- bootstrap_mean_ci(data = Gpos.bacteria,
@@ -525,9 +549,10 @@ gpos_magnitude <- gpos_magnitude %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                                           lci_per = ((exp(lower_ci) - 1) * 100),
                                           uci_per = ((exp(upper_ci) - 1) * 100))
 
-Gpos_magnitude_plot <-
+(Gpos_magnitude_plot <-
   ggplot(gpos_magnitude, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -537,7 +562,7 @@ Gpos_magnitude_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 gpos_duration <- bootstrap_mean_ci(data = Gpos.bacteria,
@@ -548,9 +573,10 @@ gpos_duration <- gpos_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                                         lci_per = ((exp(lower_ci) - 1) * 100),
                                         uci_per = ((exp(upper_ci) - 1) * 100))
 
-Gpos_duration_plot <- 
+(Gpos_duration_plot <- 
   ggplot(gpos_duration, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -560,7 +586,7 @@ Gpos_duration_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 ###########################
@@ -575,9 +601,10 @@ gneg_ecosystem <- gneg_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                                           lci_per = ((exp(lower_ci) - 1) * 100),
                                           uci_per = ((exp(upper_ci) - 1) * 100))
 
-Gneg_ecosystem_plot <- 
+(Gneg_ecosystem_plot <- 
   ggplot(gneg_ecosystem, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -587,7 +614,7 @@ Gneg_ecosystem_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 gneg_technique <- bootstrap_mean_ci(data = Gneg.bacteria,
@@ -598,9 +625,10 @@ gneg_technique <- gneg_technique %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                                           lci_per = ((exp(lower_ci) - 1) * 100),
                                           uci_per = ((exp(upper_ci) - 1) * 100))
 
-Gneg_technique_plot <- 
+(Gneg_technique_plot <- 
   ggplot(gneg_technique, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -610,7 +638,7 @@ Gneg_technique_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 gneg_ph <- bootstrap_mean_ci(data = Gneg.bacteria,
                             cat_var = "pH.level",
@@ -619,9 +647,10 @@ gneg_ph <- gneg_ph %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                             lci_per = ((exp(lower_ci) - 1) * 100),
                             uci_per = ((exp(upper_ci) - 1) * 100))
 
-Gneg_ph_plot <-
+(Gneg_ph_plot <-
   ggplot(gneg_ph, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -631,7 +660,7 @@ Gneg_ph_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 gneg_magnitude <- bootstrap_mean_ci(data = Gneg.bacteria,
@@ -642,9 +671,10 @@ gneg_magnitude <- gneg_magnitude %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                                           lci_per = ((exp(lower_ci) - 1) * 100),
                                           uci_per = ((exp(upper_ci) - 1) * 100))
 
-Gneg_magnitude_plot <-
+(Gneg_magnitude_plot <-
   ggplot(gneg_magnitude, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -654,7 +684,7 @@ Gneg_magnitude_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 gneg_duration <- bootstrap_mean_ci(data = Gneg.bacteria,
@@ -665,9 +695,10 @@ gneg_duration <- gneg_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                                         lci_per = ((exp(lower_ci) - 1) * 100),
                                         uci_per = ((exp(upper_ci) - 1) * 100))
 
-Gneg_duration_plot <-
+(Gneg_duration_plot <-
   ggplot(gneg_duration, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -677,7 +708,7 @@ Gneg_duration_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 
@@ -694,9 +725,10 @@ tbiomass_ecosystem <- tbiomass_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) 
                                           lci_per = ((exp(lower_ci) - 1) * 100),
                                           uci_per = ((exp(upper_ci) - 1) * 100))
 
-tbiomass_ecosystem_plot <-
+(tbiomass_ecosystem_plot <-
   ggplot(tbiomass_ecosystem, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -706,7 +738,7 @@ tbiomass_ecosystem_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 tbiomass_technique <- bootstrap_mean_ci(data = total.mbiomass,
@@ -717,9 +749,10 @@ tbiomass_technique <- tbiomass_technique %>% mutate(mean_per = ((exp(mean) - 1) 
                                           lci_per = ((exp(lower_ci) - 1) * 100),
                                           uci_per = ((exp(upper_ci) - 1) * 100))
 
-tbiomass_technique_plot <-
+(tbiomass_technique_plot <-
   ggplot(tbiomass_technique, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -729,7 +762,7 @@ tbiomass_technique_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 tbiomass_ph <- bootstrap_mean_ci(data = total.mbiomass,
                             cat_var = "pH.level",
@@ -738,9 +771,10 @@ tbiomass_ph <- tbiomass_ph %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                             lci_per = ((exp(lower_ci) - 1) * 100),
                             uci_per = ((exp(upper_ci) - 1) * 100))
 
-tbiomass_ph_plot <-
+(tbiomass_ph_plot <-
   ggplot(tbiomass_ph, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -750,7 +784,7 @@ tbiomass_ph_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 tbiomass_magnitude <- bootstrap_mean_ci(data = total.mbiomass,
@@ -761,9 +795,10 @@ tbiomass_magnitude <- tbiomass_magnitude %>% mutate(mean_per = ((exp(mean) - 1) 
                                           lci_per = ((exp(lower_ci) - 1) * 100),
                                           uci_per = ((exp(upper_ci) - 1) * 100))
 
-tbiomass_magnitude_plot <-
+(tbiomass_magnitude_plot <-
   ggplot(tbiomass_magnitude, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -773,7 +808,7 @@ tbiomass_magnitude_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 tbiomass_duration <- bootstrap_mean_ci(data = total.mbiomass,
@@ -784,9 +819,10 @@ tbiomass_duration <- tbiomass_duration %>% mutate(mean_per = ((exp(mean) - 1) * 
                                         lci_per = ((exp(lower_ci) - 1) * 100),
                                         uci_per = ((exp(upper_ci) - 1) * 100))
 
-tbiomass_duration_plot <-
+(tbiomass_duration_plot <-
   ggplot(tbiomass_duration, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -796,7 +832,7 @@ tbiomass_duration_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 
@@ -823,18 +859,41 @@ tbiomass_duration_plot <-
 ##################################################################
 mfunction <- read_excel("~/Desktop/MetaData.xlsx", sheet = 2)
 
-mfunction <- mfunction %>% select(studyID, map, mat, ahm, ph, pH.level, ecosystem,
-                                Warming.technique, magnitude, magnitude.of.warming, 
+
+mfunction <- mfunction %>% select(studyID, map, mat, env.type, ph, pH.level, irrigation.status,
+                                ecosystem, Warming.technique, magnitude, magnitude.of.warming, 
                                 duration, warming.duration, deg.duration,
                                 LRR, var, weight, weight.adjusted, weighted.lnR, 
                                 variable)
 
-mfunction[c("studyID", "pH.level", "ecosystem", "Warming.technique", "magnitude.of.warming",
-           "warming.duration")] <-
-  lapply(mfunction[c("studyID", "pH.level", "ecosystem", "Warming.technique", "magnitude.of.warming",
-                    "warming.duration")], factor)
+mfunction[c("studyID", "env.type", "pH.level", "ecosystem", "Warming.technique",
+           "irrigation.status", "magnitude.of.warming", "warming.duration")] <-
+  lapply(mfunction[c("studyID", "env.type", "pH.level", "ecosystem", "Warming.technique",
+                    "irrigation.status","magnitude.of.warming","warming.duration")], factor)
 sapply(mfunction, class)
 
+# Rename and reorder the factor levels
+mfunction$env.type <- factor(mfunction$env.type,
+                            levels = c("semi-arid", "dry-mesic"),
+                            labels = c("Semi-arid", "Dry-mesic"))
+
+mfunction$pH.level <- factor(mfunction$pH.level,
+                            levels = c("Acidic", "Neutral", "Alkaline"),
+                            labels = c("Acidic", "Neutral", "Alkaline"))
+
+mfunction$magnitude.of.warming <- factor(mfunction$magnitude.of.warming,
+                                        levels = c("< 2", "> 2"),
+                                        labels = c("Low", "High"))
+
+mfunction$warming.duration <- factor(mfunction$warming.duration,
+                                    levels = c("<= 2", "2-5", ">=5"),
+                                    labels = c("Short", "Medium", "Long"))
+
+mfunction$irrigation.status <- factor(mfunction$irrigation.status,
+                                     levels = c("yes", "no"),
+                                     labels = c("Irrigated", "Non-irrigated"))
+
+var_importance(mfunction)
 
 
 ##################
@@ -851,9 +910,10 @@ tresp_ecosystem <- tresp_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) * 100)
                                                     lci_per = ((exp(lower_ci) - 1) * 100),
                                                     uci_per = ((exp(upper_ci) - 1) * 100))
 
-tresp_ecosystem_plot <-
+(tresp_ecosystem_plot <-
   ggplot(tresp_ecosystem, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -863,7 +923,7 @@ tresp_ecosystem_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 tresp_technique <- bootstrap_mean_ci(data = total.respiration,
@@ -874,9 +934,10 @@ tresp_technique <- tresp_technique %>% mutate(mean_per = ((exp(mean) - 1) * 100)
                                                     lci_per = ((exp(lower_ci) - 1) * 100),
                                                     uci_per = ((exp(upper_ci) - 1) * 100))
 
-tresp_technique_plot <-
+(tresp_technique_plot <-
   ggplot(tresp_technique, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -886,7 +947,7 @@ tresp_technique_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 tresp_ph <- bootstrap_mean_ci(data = total.respiration,
                                  cat_var = "pH.level",
@@ -895,9 +956,10 @@ tresp_ph <- tresp_ph %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                                       lci_per = ((exp(lower_ci) - 1) * 100),
                                       uci_per = ((exp(upper_ci) - 1) * 100))
 
-tresp_ph_plot <-
+(tresp_ph_plot <-
   ggplot(tresp_ph, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -907,7 +969,7 @@ tresp_ph_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 tresp_magnitude <- bootstrap_mean_ci(data = total.respiration,
@@ -918,9 +980,10 @@ tresp_magnitude <- tresp_magnitude %>% mutate(mean_per = ((exp(mean) - 1) * 100)
                                                     lci_per = ((exp(lower_ci) - 1) * 100),
                                                     uci_per = ((exp(upper_ci) - 1) * 100))
 
-tresp_magnitude_plot <-
+(tresp_magnitude_plot <-
   ggplot(tresp_magnitude, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -930,7 +993,7 @@ tresp_magnitude_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 tresp_duration <- bootstrap_mean_ci(data = total.respiration,
@@ -941,9 +1004,10 @@ tresp_duration <- tresp_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                                                   lci_per = ((exp(lower_ci) - 1) * 100),
                                                   uci_per = ((exp(upper_ci) - 1) * 100))
 
-tresp_duration_plot <-
+(tresp_duration_plot <-
   ggplot(tresp_duration, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -953,7 +1017,7 @@ tresp_duration_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 # 
 # 
@@ -986,9 +1050,10 @@ mresp_ecosystem <- mresp_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) * 100)
                                                     lci_per = ((exp(lower_ci) - 1) * 100),
                                                     uci_per = ((exp(upper_ci) - 1) * 100))
 
-mresp_ecosystem_plot <- 
+(mresp_ecosystem_plot <- 
   ggplot(mresp_ecosystem, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -998,7 +1063,7 @@ mresp_ecosystem_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 mresp_technique <- bootstrap_mean_ci(data = microbial.respiration,
@@ -1009,9 +1074,10 @@ mresp_technique <- mresp_technique %>% mutate(mean_per = ((exp(mean) - 1) * 100)
                                                     lci_per = ((exp(lower_ci) - 1) * 100),
                                                     uci_per = ((exp(upper_ci) - 1) * 100))
 
-mresp_technique_plot <- 
+(mresp_technique_plot <- 
   ggplot(mresp_technique, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 3)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -1021,7 +1087,7 @@ mresp_technique_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 mresp_ph <- bootstrap_mean_ci(data = microbial.respiration,
                                  cat_var = "pH.level",
@@ -1030,9 +1096,10 @@ mresp_ph <- mresp_ph %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                                       lci_per = ((exp(lower_ci) - 1) * 100),
                                       uci_per = ((exp(upper_ci) - 1) * 100))
 
-mresp_ph_plot <-
+(mresp_ph_plot <-
   ggplot(mresp_ph, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 3)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -1042,7 +1109,7 @@ mresp_ph_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 mresp_magnitude <- bootstrap_mean_ci(data = microbial.respiration,
@@ -1053,9 +1120,10 @@ mresp_magnitude <- mresp_magnitude %>% mutate(mean_per = ((exp(mean) - 1) * 100)
                                                     lci_per = ((exp(lower_ci) - 1) * 100),
                                                     uci_per = ((exp(upper_ci) - 1) * 100))
 
-mresp_magnitude_plot <- 
+(mresp_magnitude_plot <- 
   ggplot(mresp_magnitude, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -1065,7 +1133,8 @@ mresp_magnitude_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
+
 
 
 mresp_duration <- bootstrap_mean_ci(data = microbial.respiration,
@@ -1076,9 +1145,10 @@ mresp_duration <- mresp_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
                                                   lci_per = ((exp(lower_ci) - 1) * 100),
                                                   uci_per = ((exp(upper_ci) - 1) * 100))
 
-mresp_duration_plot <-
+(mresp_duration_plot <-
   ggplot(mresp_duration, aes(category, mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -1088,7 +1158,7 @@ mresp_duration_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 # 
 # 
@@ -1121,7 +1191,7 @@ overall_effect_activity <- overall_effect_activity %>% mutate(mean_per = ((exp(m
                                             lci_per = ((exp(lower_ci) - 1) * 100),
                                             uci_per = ((exp(upper_ci) - 1) * 100))
 
-overall_activity_plot <-
+(overall_activity_plot <-
   ggplot(overall_effect_activity, aes(factor(category, 
                                            levels = c ("Oxidases","N-hydrolysis",
                                                        "C-hydrolysis",
@@ -1129,6 +1199,7 @@ overall_activity_plot <-
                                                       "Total respiration")),
                                     mean_per)) + 
   geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+  geom_text(aes(label= n, vjust = 2)) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
                 width = 0.2, linewidth = 0.7,
@@ -1138,7 +1209,7 @@ overall_activity_plot <-
         legend.position = "top",
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
-        axis.title.y = element_blank())  + coord_flip()
+        axis.title.y = element_blank())  + coord_flip())
 
 
 
