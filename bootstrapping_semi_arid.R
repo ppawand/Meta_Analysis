@@ -100,7 +100,6 @@ overall_effect <- overall_effect %>% mutate(mean_per = ((exp(mean) - 1) * 100),
 mbc <- mbiomass %>% filter(variable == "MBC")
 
 
-
 mbc_ecosystem <- bootstrap_mean_ci(data = mbc,
                   cat_var = "ecosystem",
                   num_var = "LRR")
@@ -122,6 +121,30 @@ mbc_ecosystem <- mbc_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) * 100),
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
+
+
+mbc_envtype <- bootstrap_mean_ci(data = mbc,
+                                   cat_var = "env.type",
+                                   num_var = "LRR")
+mbc_envtype <- mbc_envtype %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                          lci_per = ((exp(lower_ci) - 1) * 100),
+                                          uci_per = ((exp(upper_ci) - 1) * 100))
+
+(mbc_envtype_plot <- 
+    ggplot(mbc_envtype, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Environment Types", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
 
 
 mbc_technique <- bootstrap_mean_ci(data = mbc,
@@ -219,6 +242,31 @@ mbc_duration <- mbc_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
 
 
 
+mbc_irrigation <- bootstrap_mean_ci(data = mbc,
+                                   cat_var = "irrigation.status",
+                                   num_var = "LRR")
+mbc_irrigation <- mbc_irrigation %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                          lci_per = ((exp(lower_ci) - 1) * 100),
+                                          uci_per = ((exp(upper_ci) - 1) * 100))
+
+(mbc_irrigation_plot <- 
+    ggplot(mbc_irrigation, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Irrigation", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
+
+
+
 ##################
 # Bacterial Biomass
 #################
@@ -247,6 +295,29 @@ bacteria_ecosystem <- bacteria_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) 
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
+
+
+bacteria_envtype <- bootstrap_mean_ci(data = bacteria,
+                                 cat_var = "env.type",
+                                 num_var = "LRR")
+bacteria_envtype <- bacteria_envtype %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                      lci_per = ((exp(lower_ci) - 1) * 100),
+                                      uci_per = ((exp(upper_ci) - 1) * 100))
+
+(bacteria_envtype_plot <- 
+    ggplot(bacteria_envtype, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Environment Types", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
 
 
 bacteria_technique <- bootstrap_mean_ci(data = bacteria,
@@ -342,7 +413,27 @@ bacteria_duration <- bacteria_duration %>% mutate(mean_per = ((exp(mean) - 1) * 
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
 
+bacteria_irrigation <- bootstrap_mean_ci(data = bacteria,
+                                    cat_var = "irrigation.status",
+                                    num_var = "LRR")
+bacteria_irrigation <- bacteria_irrigation %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                            lci_per = ((exp(lower_ci) - 1) * 100),
+                                            uci_per = ((exp(upper_ci) - 1) * 100))
 
+(bacteria_irrigation_plot <- 
+    ggplot(bacteria_irrigation, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Irrigation", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
 
 ###########################
 # Fungal Biomass
@@ -371,6 +462,29 @@ fungi_ecosystem <- fungi_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) * 100)
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
+
+fungi_envtype <- bootstrap_mean_ci(data = fungi,
+                                 cat_var = "env.type",
+                                 num_var = "LRR")
+fungi_envtype <- fungi_envtype %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                      lci_per = ((exp(lower_ci) - 1) * 100),
+                                      uci_per = ((exp(upper_ci) - 1) * 100))
+
+(fungi_envtype_plot <- 
+    ggplot(fungi_envtype, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Environment Types", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
 
 
 fungi_technique <- bootstrap_mean_ci(data = fungi,
@@ -466,6 +580,28 @@ fungi_duration <- fungi_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
 
+fungi_irrigation <- bootstrap_mean_ci(data = fungi,
+                                    cat_var = "irrigation.status",
+                                    num_var = "LRR")
+fungi_irrigation <- fungi_irrigation %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                            lci_per = ((exp(lower_ci) - 1) * 100),
+                                            uci_per = ((exp(upper_ci) - 1) * 100))
+
+(fungi_irrigation_plot <- 
+    ggplot(fungi_irrigation, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Irrigation", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
 
 ###########################
 # Gram positive bacteria
@@ -493,6 +629,30 @@ gpos_ecosystem <- gpos_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) * 100),
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
+
+
+Gpos_envtype <- bootstrap_mean_ci(data = Gpos.bacteria,
+                                 cat_var = "env.type",
+                                 num_var = "LRR")
+Gpos_envtype <- Gpos_envtype %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                      lci_per = ((exp(lower_ci) - 1) * 100),
+                                      uci_per = ((exp(upper_ci) - 1) * 100))
+
+(Gpos_envtype_plot <- 
+    ggplot(Gpos_envtype, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Environment Types", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
 
 
 gpos_technique <- bootstrap_mean_ci(data = Gpos.bacteria,
@@ -588,6 +748,28 @@ gpos_duration <- gpos_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
 
+Gpos_irrigation <- bootstrap_mean_ci(data = Gpos.bacteria,
+                                    cat_var = "irrigation.status",
+                                    num_var = "LRR")
+Gpos_irrigation <- Gpos_irrigation %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                            lci_per = ((exp(lower_ci) - 1) * 100),
+                                            uci_per = ((exp(upper_ci) - 1) * 100))
+
+(Gpos_irrigation_plot <- 
+    ggplot(Gpos_irrigation, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Irrigation", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
 
 ###########################
 # Gram negative bacteria
@@ -615,6 +797,30 @@ gneg_ecosystem <- gneg_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) * 100),
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
+
+
+Gneg_envtype <- bootstrap_mean_ci(data = Gneg.bacteria,
+                                 cat_var = "env.type",
+                                 num_var = "LRR")
+Gneg_envtype <- Gneg_envtype %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                      lci_per = ((exp(lower_ci) - 1) * 100),
+                                      uci_per = ((exp(upper_ci) - 1) * 100))
+
+(Gneg_envtype_plot <- 
+    ggplot(Gneg_envtype, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Environment Types", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
 
 
 gneg_technique <- bootstrap_mean_ci(data = Gneg.bacteria,
@@ -710,6 +916,27 @@ gneg_duration <- gneg_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
 
+Gneg_irrigation <- bootstrap_mean_ci(data = Gneg.bacteria,
+                                    cat_var = "irrigation.status",
+                                    num_var = "LRR")
+Gneg_irrigation <- Gneg_irrigation %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                            lci_per = ((exp(lower_ci) - 1) * 100),
+                                            uci_per = ((exp(upper_ci) - 1) * 100))
+
+(Gneg_irrigation_plot <- 
+    ggplot(Gneg_irrigation, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Irrigation", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
 
 
 #######################
@@ -739,6 +966,30 @@ tbiomass_ecosystem <- tbiomass_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) 
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
+
+
+tbiomass_envtype <- bootstrap_mean_ci(data = total.mbiomass,
+                                 cat_var = "env.type",
+                                 num_var = "LRR")
+tbiomass_envtype <- tbiomass_envtype %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                      lci_per = ((exp(lower_ci) - 1) * 100),
+                                      uci_per = ((exp(upper_ci) - 1) * 100))
+
+(tbiomass_envtype_plot <- 
+    ggplot(tbiomass_envtype, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Environment Types", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
 
 
 tbiomass_technique <- bootstrap_mean_ci(data = total.mbiomass,
@@ -834,7 +1085,27 @@ tbiomass_duration <- tbiomass_duration %>% mutate(mean_per = ((exp(mean) - 1) * 
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
 
+tbiomass_irrigation <- bootstrap_mean_ci(data = total.mbiomass,
+                                    cat_var = "irrigation.status",
+                                    num_var = "LRR")
+tbiomass_irrigation <- tbiomass_irrigation %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                            lci_per = ((exp(lower_ci) - 1) * 100),
+                                            uci_per = ((exp(upper_ci) - 1) * 100))
 
+(tbiomass_irrigation_plot <- 
+    ggplot(tbiomass_irrigation, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Irrigation", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
 
 
 # best.model.total.biomass <- rma.mv(yi = LRR, V = var, W = weight.adjusted,
@@ -858,6 +1129,7 @@ tbiomass_duration <- tbiomass_duration %>% mutate(mean_per = ((exp(mean) - 1) * 
 # activity
 ##################################################################
 mfunction <- read_excel("~/Desktop/MetaData.xlsx", sheet = 2)
+
 
 
 mfunction <- mfunction %>% select(studyID, map, mat, env.type, ph, pH.level, irrigation.status,
@@ -886,7 +1158,7 @@ mfunction$magnitude.of.warming <- factor(mfunction$magnitude.of.warming,
                                         labels = c("Low", "High"))
 
 mfunction$warming.duration <- factor(mfunction$warming.duration,
-                                    levels = c("<= 2", "2-5", ">=5"),
+                                    levels = c("<=2", "2-5", ">=5"),
                                     labels = c("Short", "Medium", "Long"))
 
 mfunction$irrigation.status <- factor(mfunction$irrigation.status,
@@ -924,6 +1196,31 @@ tresp_ecosystem <- tresp_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) * 100)
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
+
+
+
+tresp_envtype <- bootstrap_mean_ci(data = total.respiration,
+                                 cat_var = "env.type",
+                                 num_var = "LRR")
+tresp_envtype <- tresp_envtype %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                      lci_per = ((exp(lower_ci) - 1) * 100),
+                                      uci_per = ((exp(upper_ci) - 1) * 100))
+
+(tresp_envtype_plot <- 
+    ggplot(tresp_envtype, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Environment Types", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
 
 
 tresp_technique <- bootstrap_mean_ci(data = total.respiration,
@@ -1019,6 +1316,31 @@ tresp_duration <- tresp_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
 
+
+tresp_irrigation <- bootstrap_mean_ci(data = total.respiration,
+                                    cat_var = "irrigation.status",
+                                    num_var = "LRR")
+tresp_irrigation <- tresp_irrigation %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                            lci_per = ((exp(lower_ci) - 1) * 100),
+                                            uci_per = ((exp(upper_ci) - 1) * 100))
+
+(tresp_irrigation_plot <- 
+    ggplot(tresp_irrigation, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Irrigation", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
+
+
 # 
 # 
 # best.model.total.respiration <- rma.mv(yi = LRR, V = var, W = weight.adjusted, 
@@ -1064,6 +1386,29 @@ mresp_ecosystem <- mresp_ecosystem %>% mutate(mean_per = ((exp(mean) - 1) * 100)
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
+
+mresp_envtype <- bootstrap_mean_ci(data = microbial.respiration,
+                                 cat_var = "env.type",
+                                 num_var = "LRR")
+mresp_envtype <- mresp_envtype %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                      lci_per = ((exp(lower_ci) - 1) * 100),
+                                      uci_per = ((exp(upper_ci) - 1) * 100))
+
+(mresp_envtype_plot <- 
+    ggplot(mresp_envtype, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Environment Types", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
 
 
 mresp_technique <- bootstrap_mean_ci(data = microbial.respiration,
@@ -1159,6 +1504,29 @@ mresp_duration <- mresp_duration %>% mutate(mean_per = ((exp(mean) - 1) * 100),
         legend.title = element_blank(),
         axis.text= element_text(size = 11),
         axis.title.y = element_blank())  + coord_flip())
+
+mresp_irrigation <- bootstrap_mean_ci(data = microbial.respiration,
+                                    cat_var = "irrigation.status",
+                                    num_var = "LRR")
+mresp_irrigation <- mresp_irrigation %>% mutate(mean_per = ((exp(mean) - 1) * 100),
+                                            lci_per = ((exp(lower_ci) - 1) * 100),
+                                            uci_per = ((exp(upper_ci) - 1) * 100))
+
+(mresp_irrigation_plot <- 
+    ggplot(mresp_irrigation, aes(category, mean_per)) + 
+    geom_point(size = 3.0, position = position_dodge(width = 0.35)) + theme_classic() +
+    geom_text(aes(label= n, vjust = 2)) +
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    geom_errorbar(aes(ymin = lci_per, ymax = uci_per),
+                  width = 0.2, linewidth = 0.7,
+                  position = position_dodge(width = 0.35)) +
+    labs(x = "Irrigation", y = "Percentage Change (%)") +
+    theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          legend.position = "top",
+          legend.title = element_blank(),
+          axis.text= element_text(size = 11),
+          axis.title.y = element_blank())  + coord_flip())
+
 
 # 
 # 
